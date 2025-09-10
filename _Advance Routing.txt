@@ -436,7 +436,7 @@ show ip route static
 !@S2
 conf t
  ip route 0.0.0.0 0.0.0.0 10.2.2.2 1
- ip route 0.0.0.0 0.0.0.0 10.2.2.1 5
+ ip route 0.0.0.0 0.0.0.0 10.2.2.1 10
  end
 show ip route static
 
