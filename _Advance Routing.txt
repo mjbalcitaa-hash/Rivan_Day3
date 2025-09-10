@@ -482,15 +482,15 @@ On A2, configure a floating default route on D2 as the primary default gateway, 
 
 !@A1
 conf t
- ip route  0.0.0.0  0.0.0.0  __.__.__.__  __
- ip route  0.0.0.0  0.0.0.0  __.__.__.__  __
+ ip route  0.0.0.0  0.0.0.0  192.168.1.129 1
+ ip route  0.0.0.0  0.0.0.0  192.168.1.130 10
  end
 show ip route static
 
 !@A2
 conf t
- ip ____  0.0.0.0  0.0.0.0  __.__.__.__  __
- ip ____  0.0.0.0  0.0.0.0  __.__.__.__  __
+ ip route  0.0.0.0  0.0.0.0  192.168.1.130 1
+ ip route  0.0.0.0  0.0.0.0  192.168.1.129 10
  end
 show ip route static
 
@@ -508,8 +508,8 @@ show ip route static
 
 !@P2
 conf t
- ip route __.__.__.__  __.__.__.__  __.__.__.__
- ip route __.__.__.__  __.__.__.__  __.__.__.__
+ ip route 192.168.1.128  255.255.255.224  10.2.1.2
+ ip route 192.168.1.130  255.255.255.255  10.2.1.1
  end
 show ip route static
 
@@ -537,6 +537,7 @@ conf t
   
 !@D1
 config t
+no router eigrp 100
  router eigrp 100
   no auto-summary
   network 10.1.4.4 0.0.0.3
@@ -550,12 +551,12 @@ Exercise 03: Configure EIGRP on D2. Advertise all connected routes.
 
 !@D2
 config t
- router ____  ____
+ router eigrp  100
   no auto-summary
-  network __.__.__.__  __.__.__.__
-  network __.__.__.__  __.__.__.__
-  network __.__.__.__  __.__.__.__
-  network __.__.__.__  __.__.__.__
+  network 10.1.4.8  0.0.0.3
+  network 10.2.1.0  0.0.0.255
+  network 10.2.2.0  0.0.0.255
+  network 192.168.1.128  0.0.0.31
   end
 
 
@@ -639,10 +640,10 @@ Exercise 04: Configure OSPF on R4 with the following settings:
 
 !@R4
 conf t
- router ___  __
-  router-id __.__.__.__
-  network __.__.__.__  __.__.__.__ area __
-  network __.__.__.__  __.__.__.__ area __
+ router ospf 1
+  router-id 4.4.4.4
+  network 4.4.4.4 0.0.0.0 area 0
+  network 10.1.1.8 0.0.0.3 area 0
   end
 
 
@@ -722,6 +723,7 @@ conf t
   ip ospf priority 0
   end
 
+clear ip ospf process
 ---
 
 OSPF Hello Packet
@@ -731,8 +733,8 @@ OSPF Hello Packet
 - Subnet Mask
 - Authentication Type
 
-- Hello Timer
-- Dead Timer
+- Hello Timer 10 
+- Dead Timer 40
 - Designated Router
 - Backup Designated Router
 
@@ -891,6 +893,9 @@ conf t
   neighbor 35.3.5.5 remote-as 45
   neighbor 209.9.9.1 remote-as 1
   address-family ipv4
+  neighbor 32.3.2.2 activate 
+  neighbor 35.3.5.5 activate 
+  neighbor 209.9.9.1 activate 
    network 209.9.9.0 mask 255.255.255.0
    network 32.3.2.0 mask 255.255.255.0
    network 33.33.33.33 mask 255.255.255.255
@@ -905,6 +910,9 @@ config t
   neighbor 35.3.5.3 remote-as 3
   neighbor 45.4.5.4 remote-as 45
   address-family ipv4
+  neighbor 25.2.5.2 activate 
+  neighbor 35.3.5.3 activate 
+  neighbor 45.4.5.4 activate 
    network 8.8.8.8 mask 255.255.255.255
    network 55.55.55.55 mask 255.255.255.255
    network 25.2.5.0 mask 255.255.255.0
@@ -917,18 +925,22 @@ Exercise 06: Configure BGP on I2(PLDT). Set the ASN number to 2.
 
 !@I2 - PLDT
 config t
- router bgp __
+ router bgp 2
  bgp log-neighbor-changes
- neighbor __.__.__.__ remote-as __
- neighbor __.__.__.__  remote-as __
- neighbor __.__.__.__  remote-as __
- neighbor __.__.__.__  remote-as __
- address-family __
-  network __.__.__.__ mask __.__.__.__
-  network __.__.__.__ mask __.__.__.__
-  network __.__.__.__ mask __.__.__.__
-  network __.__.__.__ mask __.__.__.__
-  network __.__.__.__ mask __.__.__.__
+ neighbor 24.2.4.4 remote-as 45
+ neighbor 25.2.5.5 remote-as 45
+ neighbor 32.3.2.3 remote-as 3
+ neighbor 207.7.7.1 remote-as 1
+address-family ipv4
+neighbor 24.2.4.4 activate 
+neighbor 25.2.5.5 activate 
+neighbor 32.3.2.3 activate 
+neighbor 207.7.7.1 activate 
+network 207.0.0.0 mask 255.255.255.0
+network 22.22.22.22 mask 255.255.255.255
+network 24.2.4.0 mask 255.255.255.0
+network 25.2.5.0 mask 255.255.255.0
+network 32.3.2.0 mask 255.255.255.0
   end
 
 Ans
@@ -941,12 +953,16 @@ config t
  neighbor 25.2.5.5 remote-as 45
  neighbor 32.3.2.3 remote-as 3
  neighbor 207.7.7.1 remote-as 1
- address-family ipv4
-  network 207.0.0.0 mask 255.255.255.0
-  network 22.22.22.22 mask 255.255.255.255
-  network 24.2.4.0 mask 255.255.255.0
-  network 25.2.5.0 mask 255.255.255.0
-  network 32.3.2.0 mask 255.255.255.0
+address-family ipv4
+neighbor 24.2.4.4 activate 
+neighbor 25.2.5.5 activate 
+neighbor 32.3.2.3 activate 
+neighbor 207.7.7.1 activate 
+network 207.0.0.0 mask 255.255.255.0
+network 22.22.22.22 mask 255.255.255.255
+network 24.2.4.0 mask 255.255.255.0
+network 25.2.5.0 mask 255.255.255.0
+network 32.3.2.0 mask 255.255.255.0
   end
   
 ---
